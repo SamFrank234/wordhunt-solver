@@ -9,11 +9,20 @@ import java.util.Scanner;
 public class WordHunt {
 
     private final LetterNode[][] board;
-    private final Dictionary dict;
+    private final Dictionary dict = new Dictionary("src/scrabbleDict.txt");
     private final ArrayList<String> words = new ArrayList<>();
     private int totalPts = 0;
     private int emptyLetters = 16;
 
+    public WordHunt(){
+        board = new LetterNode[4][4];
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                board[row][col] = new LetterNode(row, col);
+                setNeighbors(board[row][col]);
+            }
+        }
+    }
 
     //Main functions: Create Empty Board, Add Letters, Find Words, Find Best solver.Path
     public WordHunt(int sideLength ) {
@@ -24,8 +33,36 @@ public class WordHunt {
                 setNeighbors(board[row][col]);
             }
         }
+    }
 
-        dict = new Dictionary("/Users/sam/Downloads/WordHuntSolver/src/scrabbleDict.txt");
+    public void solve(String letters){
+        if(addLetters(letters)){
+            printBoard();findWords();
+
+            System.out.println("\nAll possible words(longest to shortest)");
+            printWords();
+
+            System.out.println("\nAll possible words grouped by starting letter:");
+            printWordsByLetter();
+
+            System.out.println("\nLetter score indexes mapped onto board:");
+            printStats();
+
+            System.out.println("\n");
+            printMaxScore();
+
+            System.out.println("\nOptimal Path:");
+            System.out.println(findOptimalPath());
+
+            Scanner s = new Scanner(System.in);
+            System.out.println("Type G/g to see the line graph of this path, or type any other key to quit");
+
+            if(s.next().equalsIgnoreCase("g")) {
+                PathLineChart.graph(findOptimalPath());
+            }
+        }
+
+
     }
 
     private void setNeighbors(LetterNode node) {
